@@ -1,0 +1,808 @@
+<!doctype html
+<html lang="en"
+<head
+<meta charset="utf-8"
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no"
+<meta name="theme-color" content="#17171a"
+<titleBrowser 88 — dock</title
+<link rel="preconnect" href="https://fonts.googleapis.com"
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet"
+<style
+/* ============================================================
+   Browser 88 — bottom dock + slide-up sheets.
+   Dock sits at 64dp normally. Java expands this WebView to
+   full screen when a sheet is open.
+   ============================================================ */
+:root{
+  --bg:#0e0e10;
+  --surface:#17171a;
+  --surface-2:#1f1f24;
+  --surface-3:#26262d;
+  --line:rgba(245,241,232,.07);
+  --line-2:rgba(245,241,232,.12);
+  --text:#f5f1e8;
+  --text-dim:#8a8678;
+  --text-faint:#4a4842;
+  --gold:#e8b923;
+  --ember:#d4421c;
+  --green:#7aab5c;
+  --red:#d43d2e;
+  color-scheme:dark;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden}
+body{
+  background:transparent;
+  color:var(--text);
+  font-family:'Manrope',system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased;
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-end;
+  padding-bottom:env(safe-area-inset-bottom);
+}
+
+/* ---------- dock ---------- */
+.dock{
+  height:64px;
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  align-items:center;
+  background:var(--surface);
+  border-top:1px solid var(--line);
+  position:relative;
+  z-index:2;
+}
+.dock-btn{
+  height:100%;
+  display:grid;place-items:center;
+  background:transparent;border:0;
+  cursor:pointer;
+  color:var(--text-dim);
+  transition:color .18s ease,transform .18s ease;
+  position:relative;
+  padding:0;
+}
+.dock-btn:active{transform:scale(.9)}
+.dock-btn:disabled{opacity:.25;pointer-events:none}
+.dock-btn.active{color:var(--gold)}
+.dock-btn svg{
+  width:21px;height:21px;
+  fill:none;stroke:currentColor;
+  stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;
+}
+.dock-btn:hover{color:var(--text)}
+.dock-btn .badge{
+  position:absolute;
+  top:12px;right:26%;
+  min-width:14px;height:14px;
+  padding:0 4px;
+  border-radius:7px;
+  background:var(--ember);
+  color:#fff;
+  font-family:'IBM Plex Mono',monospace;
+  font-size:9px;font-weight:600;
+  display:grid;place-items:center;
+  border:1.5px solid var(--surface);
+  line-height:1;
+}
+
+/* ---------- sheets ---------- */
+.scrim{
+  position:fixed;inset:0;
+  background:rgba(0,0,0,.6);
+  backdrop-filter:blur(6px);
+  -webkit-backdrop-filter:blur(6px);
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .3s ease;
+  z-index:1;
+}
+.scrim.on{opacity:1;pointer-events:auto}
+
+.sheet{
+  position:fixed;
+  left:0;right:0;
+  bottom:64px;
+  max-height:calc(100% - 64px - 20px);
+  background:var(--surface);
+  border-top:1px solid var(--line-2);
+  border-radius:22px 22px 0 0;
+  transform:translateY(120%);
+  transition:transform .42s cubic-bezier(.2,.8,.2,1);
+  display:flex;flex-direction:column;
+  overflow:hidden;
+  z-index:3;
+  box-shadow:0 -20px 60px rgba(0,0,0,.5);
+}
+.sheet.on{transform:translateY(0)}
+
+.sheet-head{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:16px;
+  padding:18px 22px 14px;
+  border-bottom:1px solid var(--line);
+  flex-shrink:0;
+}
+.sheet-title{
+  font-family:'Instrument Serif',serif;
+  font-size:22px;
+  letter-spacing:-.02em;
+  font-weight:400;
+}
+.sheet-title em{font-style:italic;color:var(--gold)}
+.sheet-sub{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:10.5px;
+  color:var(--text-faint);
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  margin-top:3px;
+}
+.sheet-actions{
+  display:flex;gap:8px;align-items:center;
+  flex-shrink:0;
+}
+.icon-btn{
+  width:34px;height:34px;
+  border-radius:10px;
+  background:var(--surface-2);
+  border:1px solid var(--line);
+  display:grid;place-items:center;
+  color:var(--text-dim);
+  cursor:pointer;
+  transition:all .18s ease;
+  padding:0;
+}
+.icon-btn:active{transform:scale(.92)}
+.icon-btn:hover{color:var(--gold);border-color:rgba(232,185,35,.3)}
+.icon-btn svg{
+  width:14px;height:14px;
+  fill:none;stroke:currentColor;
+  stroke-width:2;stroke-linecap:round;stroke-linejoin:round;
+}
+
+.sheet-body{
+  overflow-y:auto;
+  padding:8px 0 20px;
+  scrollbar-width:thin;
+  scrollbar-color:var(--surface-3) transparent;
+}
+.sheet-body::-webkit-scrollbar{width:5px}
+.sheet-body::-webkit-scrollbar-thumb{background:var(--surface-3);border-radius:3px}
+
+/* ---------- history items ---------- */
+.history-item{
+  display:grid;
+  grid-template-columns:auto 1fr auto;
+  align-items:center;
+  gap:12px;
+  padding:13px 22px;
+  cursor:pointer;
+  transition:background .15s ease;
+  border-bottom:1px solid var(--line);
+}
+.history-item:last-child{border-bottom:0}
+.history-item:active{background:var(--surface-2)}
+.h-dot{
+  width:8px;height:8px;
+  border-radius:50%;
+  background:var(--gold);
+  flex-shrink:0;
+  opacity:.6;
+}
+.h-meta{min-width:0}
+.h-title{
+  font-size:13.5px;
+  font-weight:500;
+  color:var(--text);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  margin-bottom:2px;
+}
+.h-url{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:11px;
+  color:var(--text-faint);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.h-time{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:10px;
+  color:var(--text-faint);
+  letter-spacing:.04em;
+  flex-shrink:0;
+}
+.h-delete{
+  width:26px;height:26px;
+  border-radius:8px;
+  background:transparent;
+  border:0;
+  display:grid;place-items:center;
+  color:var(--text-faint);
+  cursor:pointer;
+  flex-shrink:0;
+}
+.h-delete:hover{color:var(--red);background:rgba(212,61,46,.08)}
+.h-delete svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round}
+
+.empty{
+  padding:60px 22px;
+  text-align:center;
+  color:var(--text-faint);
+}
+.empty-mark{
+  font-family:'Instrument Serif',serif;
+  font-style:italic;
+  font-size:2.4rem;
+  color:var(--surface-3);
+  margin-bottom:12px;
+}
+.empty p{
+  font-size:13px;
+  line-height:1.6;
+}
+
+/* ---------- menu sheet ---------- */
+.menu-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  padding:16px 22px;
+  border-bottom:1px solid var(--line);
+  cursor:pointer;
+  transition:background .15s ease;
+}
+.menu-row:last-child{border-bottom:0}
+.menu-row:active{background:var(--surface-2)}
+.menu-label{
+  font-size:14px;
+  font-weight:500;
+  color:var(--text);
+}
+.menu-hint{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:10.5px;
+  color:var(--text-faint);
+  letter-spacing:.04em;
+  margin-top:3px;
+}
+.menu-icon{
+  width:36px;height:36px;
+  border-radius:10px;
+  background:var(--surface-2);
+  border:1px solid var(--line);
+  display:grid;place-items:center;
+  color:var(--gold);
+  flex-shrink:0;
+}
+.menu-icon svg{
+  width:16px;height:16px;
+  fill:none;stroke:currentColor;
+  stroke-width:2;stroke-linecap:round;stroke-linejoin:round;
+}
+
+/* Toggle switch */
+.toggle{
+  width:44px;height:26px;
+  border-radius:13px;
+  background:var(--surface-3);
+  border:1px solid var(--line-2);
+  position:relative;
+  transition:background .25s ease,border-color .25s ease;
+  cursor:pointer;
+  flex-shrink:0;
+}
+.toggle::after{
+  content:'';
+  position:absolute;
+  top:2px;left:2px;
+  width:20px;height:20px;
+  border-radius:50%;
+  background:var(--text-dim);
+  transition:transform .25s cubic-bezier(.2,.8,.2,1),background .25s ease;
+}
+.toggle.on{background:rgba(232,185,35,.2);border-color:rgba(232,185,35,.5)}
+.toggle.on::after{transform:translateX(18px);background:var(--gold)}
+
+/* ---------- pin dialog ---------- */
+.pin-form{
+  padding:20px 22px;
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+}
+.pin-field{
+  display:flex;flex-direction:column;gap:6px;
+}
+.pin-label{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:10.5px;
+  color:var(--text-faint);
+  letter-spacing:.12em;
+  text-transform:uppercase;
+}
+.pin-input{
+  height:44px;
+  padding:0 14px;
+  background:var(--surface-2);
+  border:1px solid var(--line);
+  border-radius:11px;
+  color:var(--text);
+  font-size:14.5px;
+  font-family:'Manrope',sans-serif;
+  outline:none;
+  transition:all .2s ease;
+}
+.pin-input:focus{
+  border-color:rgba(232,185,35,.5);
+  box-shadow:0 0 0 3px rgba(232,185,35,.1);
+}
+.pin-url{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:11.5px;
+  color:var(--text-faint);
+  word-break:break-all;
+  padding:10px 12px;
+  background:var(--surface-2);
+  border-radius:9px;
+  border:1px solid var(--line);
+  max-height:80px;
+  overflow-y:auto;
+}
+.pin-save{
+  height:46px;
+  border-radius:12px;
+  background:var(--gold);
+  color:var(--bg);
+  border:0;
+  font-family:'Manrope',sans-serif;
+  font-weight:700;
+  font-size:14.5px;
+  cursor:pointer;
+  transition:all .18s ease;
+}
+.pin-save:active{transform:scale(.97);background:#d4a81e}
+.pin-save:disabled{opacity:.4;pointer-events:none}
+
+/* ---------- credits footer ---------- */
+.credits{
+  padding:24px 22px 12px;
+  text-align:center;
+  font-family:'IBM Plex Mono',monospace;
+  font-size:10px;
+  color:var(--text-faint);
+  letter-spacing:.06em;
+  line-height:1.9;
+  border-top:1px solid var(--line);
+  margin-top:8px;
+}
+.credits b{color:var(--text-dim);font-weight:600}
+.credits a{color:var(--gold);text-decoration:none}
+</style
+</head
+<body
+
+<div class="scrim" id="scrim"</div
+
+<!-- ============================================================
+     DOCK
+     ============================================================ --
+<div class="dock"
+  <button class="dock-btn" id="backBtn" title="Back" disabled
+    <svg viewBox="0 0 24 24"<polyline points="15 18 9 12 15 6"/</svg
+  </button
+  <button class="dock-btn" id="fwdBtn" title="Forward" disabled
+    <svg viewBox="0 0 24 24"<polyline points="9 18 15 12 9 6"/</svg
+  </button
+  <button class="dock-btn" id="reloadBtn" title="Reload"
+    <svg viewBox="0 0 24 24"
+      <polyline points="1 4 1 10 7 10"/
+      <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/
+    </svg
+  </button
+  <button class="dock-btn" id="pinBtn" title="Pin"
+    <svg viewBox="0 0 24 24"
+      <path d="M12 17v5"/
+      <path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z"/
+    </svg
+  </button
+  <button class="dock-btn" id="historyBtn" title="History"
+    <svg viewBox="0 0 24 24"
+      <circle cx="12" cy="12" r="9"/
+      <polyline points="12 7 12 12 15 14"/
+    </svg
+    <span class="badge hidden" id="histBadge"</span
+  </button
+</div
+
+<!-- ============================================================
+     HISTORY SHEET
+     ============================================================ --
+<div class="sheet" id="historySheet"
+  <div class="sheet-head"
+    <div
+      <div class="sheet-title"Recent <emhistory</em</div
+      <div class="sheet-sub" id="histCount"0 entries</div
+    </div
+    <div class="sheet-actions"
+      <button class="icon-btn" id="clearHist" title="Clear all"
+        <svg viewBox="0 0 24 24"
+          <polyline points="3 6 5 6 21 6"/
+          <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/
+          <line x1="10" y1="11" x2="10" y2="17"/
+          <line x1="14" y1="11" x2="14" y2="17"/
+        </svg
+      </button
+      <button class="icon-btn" id="closeHist" title="Close"
+        <svg viewBox="0 0 24 24"
+          <line x1="18" y1="6" x2="6" y2="18"/
+          <line x1="6" y1="6" x2="18" y2="18"/
+        </svg
+      </button
+    </div
+  </div
+  <div class="sheet-body" id="histBody"</div
+</div
+
+<!-- ============================================================
+     MENU SHEET
+     ============================================================ --
+<div class="sheet" id="menuSheet"
+  <div class="sheet-head"
+    <div
+      <div class="sheet-title"Browser <em88</em</div
+      <div class="sheet-sub"Settings &amp; about</div
+    </div
+    <div class="sheet-actions"
+      <button class="icon-btn" id="closeMenu" title="Close"
+        <svg viewBox="0 0 24 24"
+          <line x1="18" y1="6" x2="6" y2="18"/
+          <line x1="6" y1="6" x2="18" y2="18"/
+        </svg
+      </button
+    </div
+  </div
+  <div class="sheet-body"
+
+    <div class="menu-row" id="adblockRow"
+      <div style="display:flex;gap:14px;align-items:center"
+        <div class="menu-icon"
+          <svg viewBox="0 0 24 24"
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/
+          </svg
+        </div
+        <div
+          <div class="menu-label"Ad blocker</div
+          <div class="menu-hint" id="adblockCount"Blocks known ad domains</div
+        </div
+      </div
+      <div class="toggle on" id="adblockToggle"</div
+    </div
+
+    <div class="menu-row" id="desktopRow"
+      <div style="display:flex;gap:14px;align-items:center"
+        <div class="menu-icon"
+          <svg viewBox="0 0 24 24"
+            <rect x="2" y="4" width="20" height="13" rx="2"/
+            <line x1="8" y1="21" x2="16" y2="21"/
+            <line x1="12" y1="17" x2="12" y2="21"/
+          </svg
+        </div
+        <div
+          <div class="menu-label"Desktop site</div
+          <div class="menu-hint"Request full site on this page</div
+        </div
+      </div
+      <div class="toggle" id="desktopToggle"</div
+    </div
+
+    <div class="menu-row" id="clearAllRow"
+      <div style="display:flex;gap:14px;align-items:center"
+        <div class="menu-icon"
+          <svg viewBox="0 0 24 24"
+            <circle cx="12" cy="12" r="9"/
+            <line x1="9" y1="9" x2="15" y2="15"/
+            <line x1="15" y1="9" x2="9" y2="15"/
+          </svg
+        </div
+        <div
+          <div class="menu-label"Clear browsing data</div
+          <div class="menu-hint"Cookies, cache, history</div
+        </div
+      </div
+    </div
+
+    <div class="credits"
+      <bBrowser 88</b<br
+      Copyright &copy; 2026 MC88<br
+      <a href="mailto:mohamed005cheikh@gmail.com"mohamed005cheikh@gmail.com</a<br
+      MIT License
+    </div
+
+  </div
+</div
+
+<!-- ============================================================
+     PIN SHEET
+     ============================================================ --
+<div class="sheet" id="pinSheet"
+  <div class="sheet-head"
+    <div
+      <div class="sheet-title"Pin to <emtaskbar</em</div
+      <div class="sheet-sub"Save this page as a shortcut</div
+    </div
+    <div class="sheet-actions"
+      <button class="icon-btn" id="closePin" title="Close"
+        <svg viewBox="0 0 24 24"
+          <line x1="18" y1="6" x2="6" y2="18"/
+          <line x1="6" y1="6" x2="18" y2="18"/
+        </svg
+      </button
+    </div
+  </div
+  <div class="pin-form"
+    <div class="pin-field"
+      <label class="pin-label"Name</label
+      <input class="pin-input" id="pinName" type="text" placeholder="My shortcut" maxlength="40"
+    </div
+    <div class="pin-field"
+      <label class="pin-label"Address</label
+      <div class="pin-url" id="pinUrl"—</div
+    </div
+    <button class="pin-save" id="pinSave"Pin to taskbar</button
+  </div
+</div
+
+<script
+(function(){
+'use strict';
+
+const $ = id = document.getElementById(id);
+const scrim = $('scrim');
+const historySheet = $('historySheet');
+const menuSheet = $('menuSheet');
+const pinSheet = $('pinSheet');
+
+const NATIVE = typeof window.AndroidBridge !== 'undefined' && window.AndroidBridge !== null;
+const IS_ANDROID = NATIVE && typeof window.AndroidBridge.getVersion === 'function';
+
+function bridge(method, ...args){
+  if(!IS_ANDROID) return;
+  const fn = window.AndroidBridge[method];
+  if(typeof fn === 'function'){
+    try { fn.apply(window.AndroidBridge, args); } catch(e){}
+  }
+}
+
+/* ------------------ sheets ------------------ */
+let currentSheet = null;
+
+function openSheet(name){
+  closeAll();
+  scrim.classList.add('on');
+  bridge('expandDock');
+  if(name === 'history'){ historySheet.classList.add('on'); renderHistory(); }
+  else if(name === 'menu'){ menuSheet.classList.add('on'); refreshMenuState(); }
+  else if(name === 'pin'){ pinSheet.classList.add('on'); renderPin(); }
+  currentSheet = name;
+}
+
+function closeAll(){
+  historySheet.classList.remove('on');
+  menuSheet.classList.remove('on');
+  pinSheet.classList.remove('on');
+  scrim.classList.remove('on');
+  currentSheet = null;
+  setTimeout(() = bridge('collapseDock'), 300);
+}
+
+scrim.addEventListener('click', closeAll);
+$('closeHist').addEventListener('click', closeAll);
+$('closeMenu').addEventListener('click', closeAll);
+$('closePin').addEventListener('click', closeAll);
+
+/* ------------------ dock ------------------ */
+$('backBtn').addEventListener('click', () = bridge('goBack'));
+$('fwdBtn').addEventListener('click', () = bridge('goForward'));
+$('reloadBtn').addEventListener('click', () = bridge('reload'));
+$('pinBtn').addEventListener('click', () = openSheet('pin'));
+$('historyBtn').addEventListener('click', () = openSheet('history'));
+
+/* ------------------ history ------------------ */
+function timeAgo(ts){
+  const s = Math.floor((Date.now() - ts) / 1000);
+  if(s < 60) return s + 's';
+  const m = Math.floor(s / 60);
+  if(m < 60) return m + 'm';
+  const h = Math.floor(m / 60);
+  if(h < 24) return h + 'h';
+  const d = Math.floor(h / 24);
+  if(d < 30) return d + 'd';
+  return new Date(ts).toLocaleDateString(undefined, { month:'short', day:'numeric' });
+}
+
+function hostOf(url){
+  try { return new URL(url).hostname.replace(/^www\./, ''); }
+  catch(e){ return url; }
+}
+
+function renderHistory(){
+  const list = getHistory();
+  const body = $('histBody');
+  $('histCount').textContent = list.length + ' ' + (list.length === 1 ? 'entry' : 'entries');
+  $('histBadge').textContent = list.length  99 ? '99+' : String(list.length);
+  if(list.length) $('histBadge').classList.remove('hidden');
+  else $('histBadge').classList.add('hidden');
+
+  if(!list.length){
+    body.innerHTML = '<div class="empty"<div class="empty-mark"88</div<pNo history yet.<brPages you visit will appear here.</p</div';
+    return;
+  }
+
+  body.innerHTML = list.map((h, i) = `
+    <div class="history-item" data-idx="${i}"
+      <span class="h-dot"</span
+      <div class="h-meta"
+        <div class="h-title"${escapeHtml(h.title || hostOf(h.url))}</div
+        <div class="h-url"${escapeHtml(h.url)}</div
+      </div
+      <span class="h-time"${timeAgo(h.t)}</span
+      <button class="h-delete" data-del="${i}" title="Remove"
+        <svg viewBox="0 0 24 24"
+          <line x1="18" y1="6" x2="6" y2="18"/
+          <line x1="6" y1="6" x2="18" y2="18"/
+        </svg
+      </button
+    </div
+  `).join('');
+
+  body.querySelectorAll('.history-item').forEach(item = {
+    item.addEventListener('click', e = {
+      if(e.target.closest('.h-delete')) return;
+      const idx = +item.dataset.idx;
+      const entry = list[idx];
+      if(entry){
+        closeAll();
+        bridge('navigate', entry.url);
+      }
+    });
+  });
+
+  body.querySelectorAll('.h-delete').forEach(btn = {
+    btn.addEventListener('click', e = {
+      e.stopPropagation();
+      const idx = +btn.dataset.del;
+      deleteHistory(idx);
+      renderHistory();
+    });
+  });
+}
+
+$('clearHist').addEventListener('click', () = {
+  clearHistory();
+  renderHistory();
+});
+
+/* ------------------ menu ------------------ */
+function refreshMenuState(){
+  const adblockOn = getSetting('adblock', true);
+  const desktopOn = getSetting('desktop', false);
+  $('adblockToggle').classList.toggle('on', adblockOn);
+  $('desktopToggle').classList.toggle('on', desktopOn);
+  const blocked = getSetting('blockedCount', 0);
+  $('adblockCount').textContent = blocked  0
+    ? blocked + ' requests blocked'
+    : 'Blocks known ad domains';
+}
+
+$('adblockRow').addEventListener('click', () = {
+  const now = getSetting('adblock', true);
+  setSetting('adblock', !now);
+  refreshMenuState();
+  bridge('setAdblock', !now);
+});
+
+$('desktopRow').addEventListener('click', () = {
+  const now = getSetting('desktop', false);
+  setSetting('desktop', !now);
+  refreshMenuState();
+  bridge('setDesktopMode', !now);
+});
+
+$('clearAllRow').addEventListener('click', () = {
+  if(confirm('Clear all browsing data? This cannot be undone.')){
+    clearHistory();
+    bridge('clearAllData');
+    closeAll();
+  }
+});
+
+/* ------------------ pin ------------------ */
+let currentUrl = '';
+let currentTitle = '';
+
+function renderPin(){
+  $('pinName').value = currentTitle || hostOf(currentUrl) || '';
+  $('pinUrl').textContent = currentUrl || '—';
+  setTimeout(() = $('pinName').focus(), 150);
+}
+
+$('pinSave').addEventListener('click', () = {
+  const name = ($('pinName').value || '').trim() || hostOf(currentUrl) || 'Shortcut';
+  if(!currentUrl) return;
+  bridge('addPin', name, currentUrl);
+  closeAll();
+});
+
+/* ------------------ storage helpers ------------------ */
+function getHistory(){
+  try { return JSON.parse(localStorage.getItem('b88.history') || '[]'); }
+  catch(e){ return []; }
+}
+function saveHistory(h){
+  try { localStorage.setItem('b88.history', JSON.stringify(h.slice(0, 500))); }
+  catch(e){}
+}
+function deleteHistory(idx){
+  const h = getHistory();
+  h.splice(idx, 1);
+  saveHistory(h);
+}
+function clearHistory(){
+  try { localStorage.removeItem('b88.history'); } catch(e){}
+}
+function getSetting(k, d){
+  try {
+    const v = localStorage.getItem('b88.' + k);
+    if(v === null) return d;
+    return JSON.parse(v);
+  } catch(e){ return d; }
+}
+function setSetting(k, v){
+  try { localStorage.setItem('b88.' + k, JSON.stringify(v)); } catch(e){}
+}
+function escapeHtml(s){
+  return String(s || '').replace(/[&<"']/g, c = ({
+    '&':'&amp;','<':'&lt;','':'&gt;','"':'&quot;',"'":'&#39;'
+  }[c]));
+}
+
+/* ------------------ callbacks from Android ------------------ */
+window.dockSetNavState = (canBack, canFwd) = {
+  $('backBtn').disabled = !canBack;
+  $('fwdBtn').disabled = !canFwd;
+};
+
+window.dockOnPageLoaded = (url, title) = {
+  currentUrl = url || '';
+  currentTitle = title || '';
+  if(!url || url.startsWith('file://')) return;
+  const h = getHistory();
+  if(h[0] && h[0].url === url){ h[0].t = Date.now(); h[0].title = title; }
+  else h.unshift({ url, title, t: Date.now() });
+  saveHistory(h);
+  const n = h.length;
+  const badge = $('histBadge');
+  if(n  0){ badge.textContent = n  99 ? '99+' : String(n); badge.classList.remove('hidden'); }
+};
+
+window.dockSetBlocked = count = {
+  setSetting('blockedCount', count);
+  if(currentSheet === 'menu') refreshMenuState();
+};
+
+window.dockOpenMenu = () = openSheet('menu');
+
+/* ------------------ boot ------------------ */
+const h = getHistory();
+if(h.length){
+  $('histBadge').textContent = h.length  99 ? '99+' : String(h.length);
+  $('histBadge').classList.remove('hidden');
+}
+
+})();
+</script
+</body
+</html

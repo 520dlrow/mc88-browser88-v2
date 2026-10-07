@@ -1,0 +1,270 @@
+<!doctype html
+<html lang="en"
+<head
+<meta charset="utf-8"
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no"
+<meta name="theme-color" content="#0e0e10"
+<titleBrowser 88</title
+<link rel="preconnect" href="https://fonts.googleapis.com"
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet"
+<style
+/* ============================================================
+   Browser 88 — top bar
+   The one thing I see on every page. Kept it small, quiet,
+   typography-first.
+   ============================================================ */
+:root{
+  --bg:#0e0e10;
+  --surface:#17171a;
+  --surface-2:#1f1f24;
+  --surface-3:#26262d;
+  --line:rgba(245,241,232,.07);
+  --line-2:rgba(245,241,232,.12);
+  --text:#f5f1e8;
+  --text-dim:#8a8678;
+  --text-faint:#4a4842;
+  --gold:#e8b923;
+  --ember:#d4421c;
+  --green:#7aab5c;
+  --red:#d43d2e;
+  color-scheme:dark;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Manrope',system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased;
+  padding-top:env(safe-area-inset-top);
+  display:flex;
+  align-items:stretch;
+}
+
+/* ---------- the bar ---------- */
+.bar{
+  display:grid;
+  grid-template-columns:auto 1fr auto;
+  align-items:center;
+  gap:10px;
+  padding:10px 12px;
+  width:100%;
+  background:var(--bg);
+  border-bottom:1px solid var(--line);
+}
+
+/* Brand mark. Italic serif "88" — quiet signature. */
+.brand{
+  width:38px;height:38px;
+  display:grid;place-items:center;
+  font-family:'Instrument Serif',serif;
+  font-style:italic;
+  font-size:19px;
+  color:var(--gold);
+  letter-spacing:-.04em;
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:11px;
+  flex-shrink:0;
+  user-select:none;
+  transition:background .25s ease,border-color .25s ease;
+}
+.brand:active{background:var(--surface-2)}
+
+/* URL pill — the centerpiece */
+.url{
+  display:flex;
+  align-items:center;
+  gap:9px;
+  height:38px;
+  padding:0 14px;
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:12px;
+  min-width:0;
+  transition:all .3s cubic-bezier(.2,.8,.2,1);
+  position:relative;
+}
+.url:focus-within{
+  background:var(--surface-2);
+  border-color:rgba(232,185,35,.45);
+  box-shadow:0 0 0 3px rgba(232,185,35,.08);
+}
+.url.secure .lock{stroke:var(--green)}
+.url.insecure .lock{stroke:var(--red)}
+
+.lock{
+  width:13px;height:13px;flex-shrink:0;
+  fill:none;stroke:var(--text-faint);
+  stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;
+  transition:stroke .25s ease;
+}
+.url-input{
+  flex:1;min-width:0;
+  background:transparent;border:0;outline:none;
+  color:var(--text);
+  font-family:'IBM Plex Mono',monospace;
+  font-size:13.5px;
+  letter-spacing:-.01em;
+  padding:0;
+  height:100%;
+}
+.url-input::placeholder{color:var(--text-faint);font-family:'Manrope',sans-serif;font-style:italic}
+.url:focus-within .url-input{
+  font-family:'Manrope',sans-serif;
+  font-size:14px;
+  letter-spacing:0;
+}
+
+/* Menu button */
+.menu{
+  width:38px;height:38px;
+  display:grid;place-items:center;
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:11px;
+  cursor:pointer;
+  flex-shrink:0;
+  transition:all .2s ease;
+}
+.menu:active{background:var(--surface-2);transform:scale(.95)}
+.menu svg{
+  width:16px;height:16px;
+  fill:none;stroke:var(--text-dim);
+  stroke-width:2.4;stroke-linecap:round;
+  transition:stroke .2s ease;
+}
+.menu:hover svg{stroke:var(--gold)}
+
+/* Loading bar — very slim, thin line at the bottom */
+.load{
+  position:absolute;
+  left:0;right:0;bottom:0;
+  height:1.5px;
+  overflow:hidden;
+  opacity:0;
+  transition:opacity .3s ease;
+  pointer-events:none;
+}
+.load.on{opacity:1}
+.load::after{
+  content:'';
+  position:absolute;
+  inset:0;
+  background:linear-gradient(90deg,transparent,var(--gold),transparent);
+  background-size:40% 100%;
+  animation:sweep 1.2s linear infinite;
+}
+@keyframes sweep{
+  0%{background-position:-40% 0}
+  100%{background-position:140% 0}
+}
+</style
+</head
+<body
+
+<div class="bar"
+  <div class="brand" id="brand" title="Home"88</div
+
+  <div class="url" id="urlWrap"
+    <svg class="lock" id="lock" viewBox="0 0 24 24"
+      <rect x="4" y="10" width="16" height="10" rx="2"/
+      <path d="M8 10V7a4 4 0 0 1 8 0v3"/
+    </svg
+    <input class="url-input" id="urlInput" type="text"
+           placeholder="Search or enter address"
+           autocomplete="off" autocorrect="off" autocapitalize="off"
+           spellcheck="false" inputmode="url" enterkeyhint="go"
+  </div
+
+  <button class="menu" id="menuBtn" title="Menu"
+    <svg viewBox="0 0 24 24"
+      <line x1="4" y1="7" x2="20" y2="7"/
+      <line x1="4" y1="12" x2="20" y2="12"/
+      <line x1="4" y1="17" x2="14" y2="17"/
+    </svg
+  </button
+
+  <div class="load" id="load"</div
+</div
+
+<script
+(function(){
+'use strict';
+
+const $ = id = document.getElementById(id);
+const urlInput = $('urlInput');
+const urlWrap = $('urlWrap');
+const loadBar = $('load');
+const brand = $('brand');
+
+const NATIVE = typeof window.AndroidBridge !== 'undefined' && window.AndroidBridge !== null;
+const IS_ANDROID = NATIVE && typeof window.AndroidBridge.getVersion === 'function';
+
+function bridge(method, ...args){
+  if(!IS_ANDROID) return;
+  const fn = window.AndroidBridge[method];
+  if(typeof fn === 'function'){
+    try { fn.apply(window.AndroidBridge, args); } catch(e){}
+  }
+}
+
+/* Turn whatever the user typed into a real URL.
+   If it looks like a URL, use it. Otherwise search. */
+function normalize(raw){
+  let s = String(raw || '').trim();
+  if(!s) return '';
+  if(/^https?:\/\//i.test(s)) return s;
+  if(/^about:blank$/i.test(s)) return s;
+  if(/^[\w-]+(\.[\w-]+)+(\/.*)?$/.test(s)) return 'https://' + s;
+  if(/^localhost(:\d+)?/.test(s)) return 'http://' + s;
+  return 'https://duckduckgo.com/?q=' + encodeURIComponent(s);
+}
+
+urlInput.addEventListener('focus', () = {
+  setTimeout(() = urlInput.setSelectionRange(0, urlInput.value.length), 10);
+});
+
+urlInput.addEventListener('keydown', e = {
+  if(e.key === 'Enter'){
+    e.preventDefault();
+    urlInput.blur();
+    const u = normalize(urlInput.value);
+    if(u) bridge('navigate', u);
+  }
+});
+
+brand.addEventListener('click', () = bridge('goHome'));
+$('menuBtn').addEventListener('click', () = bridge('toggleMenu'));
+
+/* Lock icon state */
+function updateLock(url){
+  urlWrap.classList.remove('secure','insecure');
+  if(!url) return;
+  if(/^https:\/\//i.test(url)) urlWrap.classList.add('secure');
+  else if(/^http:\/\//i.test(url)) urlWrap.classList.add('insecure');
+}
+
+/* ============================================================
+   Callbacks from Android
+   ============================================================ */
+window.shellSetUrl = url = {
+  urlInput.value = url || '';
+  updateLock(url);
+};
+
+window.shellSetProgress = loading = {
+  if(loading) loadBar.classList.add('on');
+  else loadBar.classList.remove('on');
+};
+
+window.shellFocusUrl = () = {
+  urlInput.focus();
+  setTimeout(() = urlInput.setSelectionRange(0, urlInput.value.length), 20);
+};
+
+})();
+</script
+</body
+</html

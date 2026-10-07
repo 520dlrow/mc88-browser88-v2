@@ -1,0 +1,339 @@
+<!doctype html
+<html lang="en"
+<head
+<meta charset="utf-8"
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"
+<titleBrowser 88</title
+<link rel="preconnect" href="https://fonts.googleapis.com"
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet"
+<style
+/* ============================================================
+   Home screen. Shown inside the content area.
+   Clean, editorial, fast to load.
+   ============================================================ */
+:root{
+  --bg:#0e0e10;
+  --surface:#17171a;
+  --surface-2:#1f1f24;
+  --line:rgba(245,241,232,.07);
+  --text:#f5f1e8;
+  --text-dim:#8a8678;
+  --text-faint:#4a4842;
+  --gold:#e8b923;
+  --ember:#d4421c;
+  color-scheme:dark;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{min-height:100%;background:var(--bg)}
+body{
+  color:var(--text);
+  font-family:'Manrope',system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased;
+  padding:0 24px 40px;
+  max-width:720px;
+  margin:0 auto;
+}
+
+/* Hero — big italic serif title */
+.hero{
+  padding:64px 0 40px;
+  text-align:center;
+}
+.hero-mark{
+  font-family:'Instrument Serif',serif;
+  font-style:italic;
+  font-size:clamp(4rem,14vw,7rem);
+  line-height:.9;
+  letter-spacing:-.05em;
+  background:linear-gradient(160deg,#f5f1e8 0%,var(--gold) 70%);
+  -webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent;
+  margin-bottom:8px;
+  animation:rise .8s cubic-bezier(.2,.8,.2,1) both;
+}
+.hero-title{
+  font-size:1.1rem;
+  font-weight:600;
+  letter-spacing:-.01em;
+  margin-bottom:6px;
+  animation:rise .8s cubic-bezier(.2,.8,.2,1) .1s both;
+}
+.hero-sub{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:11px;
+  color:var(--text-faint);
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  animation:rise .8s cubic-bezier(.2,.8,.2,1) .15s both;
+}
+@keyframes rise{
+  from{opacity:0;transform:translateY(14px)}
+  to{opacity:1;transform:none}
+}
+
+/* Pinned section */
+.section{
+  margin-bottom:36px;
+  animation:rise .8s cubic-bezier(.2,.8,.2,1) .25s both;
+}
+.section-label{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:10px;
+  color:var(--text-faint);
+  letter-spacing:.2em;
+  text-transform:uppercase;
+  margin-bottom:16px;
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+.section-label::after{
+  content:'';
+  flex:1;
+  height:1px;
+  background:var(--line);
+}
+
+/* Pinned tiles */
+.pins{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(96px,1fr));
+  gap:14px;
+}
+.pin-tile{
+  aspect-ratio:1;
+  border-radius:18px;
+  background:var(--surface);
+  border:1px solid var(--line);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  padding:12px 8px;
+  cursor:pointer;
+  transition:all .22s cubic-bezier(.2,.8,.2,1);
+  text-decoration:none;
+  color:inherit;
+  animation:rise .5s cubic-bezier(.2,.8,.2,1) both;
+}
+.pin-tile:active{
+  transform:scale(.94);
+  background:var(--surface-2);
+  border-color:rgba(232,185,35,.3);
+}
+.pin-icon{
+  width:40px;height:40px;
+  border-radius:11px;
+  display:grid;place-items:center;
+  font-family:'Instrument Serif',serif;
+  font-style:italic;
+  font-size:20px;
+  color:var(--bg);
+  font-weight:600;
+}
+.pin-name{
+  font-size:11px;
+  font-weight:500;
+  color:var(--text-dim);
+  text-align:center;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  width:100%;
+}
+
+/* Empty state */
+.empty-pins{
+  padding:36px 24px;
+  text-align:center;
+  background:var(--surface);
+  border:1px dashed var(--line);
+  border-radius:16px;
+}
+.empty-pins p{
+  font-size:13px;
+  color:var(--text-dim);
+  line-height:1.6;
+}
+.empty-pins em{
+  font-family:'Instrument Serif',serif;
+  font-style:italic;
+  color:var(--gold);
+}
+
+/* Quick shortcuts for first launch */
+.quick{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:12px;
+  margin-top:8px;
+}
+.quick-tile{
+  aspect-ratio:1;
+  border-radius:16px;
+  background:var(--surface);
+  border:1px solid var(--line);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  padding:10px 6px;
+  cursor:pointer;
+  transition:all .22s cubic-bezier(.2,.8,.2,1);
+  text-decoration:none;
+  color:inherit;
+}
+.quick-tile:active{transform:scale(.94);background:var(--surface-2)}
+.quick-mark{
+  width:34px;height:34px;
+  border-radius:10px;
+  display:grid;place-items:center;
+  font-family:'Instrument Serif',serif;
+  font-style:italic;
+  font-size:17px;
+  font-weight:600;
+  color:#fff;
+}
+.quick-name{
+  font-size:10px;
+  font-weight:500;
+  color:var(--text-dim);
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  width:100%;
+  text-align:center;
+}
+
+/* Credits footer */
+.credits{
+  margin-top:60px;
+  padding-top:24px;
+  border-top:1px solid var(--line);
+  text-align:center;
+  font-family:'IBM Plex Mono',monospace;
+  font-size:10px;
+  color:var(--text-faint);
+  letter-spacing:.06em;
+  line-height:2;
+}
+.credits b{color:var(--text-dim);font-weight:600}
+.credits a{color:var(--gold);text-decoration:none}
+</style
+</head
+<body
+
+<div class="hero"
+  <div class="hero-mark"88</div
+  <div class="hero-title"Browser 88</div
+  <div class="hero-sub"Code to App · by MC88</div
+</div
+
+<div class="section" id="pinsSection"
+  <div class="section-label"Pinned to taskbar</div
+  <div class="pins" id="pinsList"</div
+</div
+
+<div class="section"
+  <div class="section-label"Quick shortcuts</div
+  <div class="quick"
+    <a class="quick-tile" href="https://duckduckgo.com"
+      <div class="quick-mark" style="background:linear-gradient(135deg,#de5833,#ff7f50)"D</div
+      <span class="quick-name"DuckDuckGo</span
+    </a
+    <a class="quick-tile" href="https://wikipedia.org"
+      <div class="quick-mark" style="background:linear-gradient(135deg,#333,#555)"W</div
+      <span class="quick-name"Wikipedia</span
+    </a
+    <a class="quick-tile" href="https://github.com"
+      <div class="quick-mark" style="background:linear-gradient(135deg,#24292e,#57606a)"G</div
+      <span class="quick-name"GitHub</span
+    </a
+    <a class="quick-tile" href="https://reddit.com"
+      <div class="quick-mark" style="background:linear-gradient(135deg,#ff4500,#ff6534)"R</div
+      <span class="quick-name"Reddit</span
+    </a
+  </div
+</div
+
+<div class="credits"
+  <bBrowser 88</b<br
+  Copyright &copy; 2026 MC88<br
+  <a href="mailto:mohamed005cheikh@gmail.com"mohamed005cheikh@gmail.com</a<br
+  MIT License
+</div
+
+<script
+(function(){
+'use strict';
+
+const NATIVE = typeof window.AndroidBridge !== 'undefined' && window.AndroidBridge !== null;
+const IS_ANDROID = NATIVE && typeof window.AndroidBridge.getVersion === 'function';
+
+/* Deterministic gradient from a string */
+function hashGradient(str){
+  let h = 0;
+  for(let i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) | 0;
+  const hue1 = Math.abs(h) % 360;
+  const hue2 = (hue1 + 55 + Math.abs(h  8) % 100) % 360;
+  return `linear-gradient(135deg, hsl(${hue1} 72% 55%), hsl(${hue2} 72% 45%))`;
+}
+
+function initials(name){
+  const parts = String(name || '').replace(/[^\w\s]/g, '').trim().split(/\s+/);
+  if(!parts[0]) return '?';
+  if(parts.length === 1) return parts[0].slice(0,2).toUpperCase();
+  return (parts[0][0] + parts[1][0]).toUpperCase();
+}
+
+function renderPins(pins){
+  const list = document.getElementById('pinsList');
+  if(!pins || !pins.length){
+    list.innerHTML = '<div class="empty-pins" style="grid-column:1/-1"<pNothing pinned yet.<brOpen a page and tap the <empin</em button in the dock.</p</div';
+    return;
+  }
+  list.innerHTML = pins.map((p, i) = `
+    <a class="pin-tile" href="${escapeAttr(p.url)}" style="animation-delay:${i * 40}ms"
+      <div class="pin-icon" style="background:${hashGradient(p.name)}"${escapeHtml(initials(p.name))}</div
+      <span class="pin-name"${escapeHtml(p.name)}</span
+    </a
+  `).join('');
+}
+
+function escapeHtml(s){
+  return String(s || '').replace(/[&<"']/g, c = ({
+    '&':'&amp;','<':'&lt;','':'&gt;','"':'&quot;',"'":'&#39;'
+  }[c]));
+}
+function escapeAttr(s){ return escapeHtml(s); }
+
+/* Ask Java for the current pin list */
+if(IS_ANDROID && typeof window.AndroidBridge.getPins === 'function'){
+  try {
+    const raw = window.AndroidBridge.getPins();
+    const pins = JSON.parse(raw || '[]');
+    renderPins(pins);
+  } catch(e){ renderPins([]); }
+} else {
+  renderPins([]);
+}
+
+/* When a tile is tapped, hand the URL to Java so it loads in content WebView */
+document.addEventListener('click', e = {
+  const link = e.target.closest('a[href]');
+  if(!link) return;
+  const href = link.getAttribute('href');
+  if(!href || href.startsWith('#')) return;
+  e.preventDefault();
+  if(IS_ANDROID && typeof window.AndroidBridge.navigate === 'function'){
+    try { window.AndroidBridge.navigate(href); } catch(err){}
+  }
+});
+
+})();
+</script
+</body
+</html
